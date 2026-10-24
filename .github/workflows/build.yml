@@ -1,0 +1,89 @@
+name: Build and Release AdBlock Rules
+
+on:
+  schedule:
+    # Runs at 20:30 UTC daily (04:30 AM Beijing Time)
+    - cron: "30 20 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "README.md"
+      - "LICENSE"
+      - ".gitignore"
+
+jobs:
+  build:
+    name: Build Rulesets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Variables
+        run: |
+          echo "BUILD_TIME=$(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+          echo "RELEASE_TAG=latest" >> $GITHUB_ENV
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache-dependency-path: ./scripts/mrs_converter/go.sum
+
+      - name: Build Rules
+        run: |
+          python scripts/build.py --profile all --output publish
+
+      - name: Prepare Release Directory
+        run: |
+          mkdir -p ./release_assets
+          cp -r ./publish/* ./release_assets/
+
+      - name: Update GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete "${{ env.RELEASE_TAG }}" --cleanup-tag -y || true
+          gh release create "${{ env.RELEASE_TAG }}" \
+            --title "AdBlock Rules Update (${{ env.BUILD_TIME }})" \
+            --notes "Automated daily build at ${{ env.BUILD_TIME }} (Asia/Shanghai). Contains Server (full) and Client (lite) rule providers." \
+            ./release_assets/*
+
+      - name: Publish to 'release' Branch
+        run: |
+          cd publish
+          git init
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b release
+          git add -A
+          git commit -m "Automated build: ${{ env.BUILD_TIME }}"
+          git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git push -f origin release
+
+      - name: Purge jsDelivr CDN Cache
+        continue-on-error: true
+        run: |
+          files=(
+            "reject-server.yaml"
+            "reject-server.list"
+            "reject-server.txt"
+            "reject-server.mrs"
+            "reject-client.yaml"
+            "reject-client.list"
+            "reject-client.txt"
+            "reject-client.mrs"
+          )
+          for file in "${files[@]}"; do
+            curl -s -i "https://purge.jsdelivr.net/gh/${{ github.repository }}@release/${file}" || true
+          done

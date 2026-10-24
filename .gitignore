@@ -1,0 +1,23 @@
+# Build outputs and caches
+publish/
+cache/
+release_assets/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# Go
+bin/
+*.exe
+*.test
+
+# IDE
+.vscode/
+.idea/
+*.swp
