@@ -56,6 +56,11 @@ CLIENT_SOURCES = [
         "format": "domainset"
     },
     {
+        "name": "Sukka Reject Drop",
+        "url": "https://ruleset.skk.moe/Clash/non_ip/reject-drop.txt",
+        "format": "domainset"
+    },
+    {
         "name": "217heidai AdBlock Lite",
         "url": "https://cdn.jsdelivr.net/gh/217heidai/adblockfilters/rules/adblockmihomolite.yaml",
         "format": "yaml_list"

@@ -13,7 +13,7 @@
 | 规则名称 | 定位场景 | 涵盖上游数据源 | 规则体量 (去冗余后) | 格式支持 |
 | :--- | :--- | :--- | :--- | :--- |
 | **`reject-server`**<br>(全量极致防御) | **软路由 / 网关 / VPS 服务器**<br>硬件算力充裕，追求极致拦截率与全方位防追踪。 | • **Loyalsoldier**: `reject.txt`<br>• **Sukka**: `reject.txt` (Base)<br>• **Sukka**: `reject_extra.txt` (Extra) | **~233,000 条** | `.mrs` / `.yaml` / `.list` / `.txt` |
-| **`reject-client`**<br>(极轻特化防御) | **手机 / 平板 / 移动轻薄本**<br>兼顾极低内存占用与高频国内移动 App 开屏、SDK 广告拦截。 | • **MetaCubeX**: `category-ads-all`<br>• **Sukka**: `reject.txt` (Non-IP)<br>• **Sukka**: `reject-no-drop.txt`<br>• **217heidai**: `adblockmihomolite`<br>• **秋风**: `AWAvenue-Ads-Rule` | **~9,000 条** | `.mrs` / `.yaml` / `.list` / `.txt` |
+| **`reject-client`**<br>(极轻特化防御) | **手机 / 平板 / 移动轻薄本**<br>兼顾极低内存占用与高频国内移动 App 开屏、SDK 广告拦截。 | • **MetaCubeX**: `category-ads-all`<br>• **Sukka**: `reject.txt` (Non-IP)<br>• **Sukka**: `reject-no-drop.txt`<br>• **Sukka**: `reject-drop.txt`<br>• **217heidai**: `adblockmihomolite`<br>• **秋风**: `AWAvenue-Ads-Rule` | **~9,000+ 条** | `.mrs` / `.yaml` / `.list` / `.txt` |
 
 ---
 
