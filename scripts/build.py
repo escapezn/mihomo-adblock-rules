@@ -95,6 +95,26 @@ def fetch_url_content(url, local_cache_dir=None):
     return content
 
 
+def is_valid_domain(domain):
+    """
+    Validates that a string is a clean, standard FQDN without wildcards or classical syntax.
+    """
+    if not domain or len(domain) > 253:
+        return False
+    # Disallow wildcards, commas, whitespace, protocols, or quotes
+    if any(c in domain for c in "*?, \t\r\n/\\:;!#$@\"'"):
+        return False
+    if "." not in domain:
+        return False
+    labels = domain.split(".")
+    for label in labels:
+        if not label or len(label) > 63:
+            return False
+        if label.startswith("-") or label.endswith("-"):
+            return False
+    return True
+
+
 def parse_rules_from_content(content_bytes):
     """
     Parses various rule formats into a pair of sets: (suffix_domains, exact_domains)
@@ -119,37 +139,45 @@ def parse_rules_from_content(content_bytes):
         if not line:
             continue
 
+        # Explicitly ignore non-domain classical rule types
+        upper_line = line.upper()
+        if any(upper_line.startswith(prefix) for prefix in [
+            "DOMAIN-WILDCARD,", "DOMAIN-KEYWORD,", "DOMAIN-REGEX,",
+            "IP-CIDR,", "IP-CIDR6,", "SRC-IP-CIDR,", "GEOIP,", "GEOSITE,",
+            "PROCESS-NAME,", "PROCESS-PATH,", "PROCESS-NAME-REGEX,", "PROCESS-PATH-REGEX,",
+            "PROCESS-NAME-WILDCARD,", "PROCESS-PATH-WILDCARD,", "SRC-PORT,", "DST-PORT,",
+            "IN-PORT,", "IN-TYPE,", "IN-USER,", "IN-NAME,", "NETWORK,", "RULE-SET,"
+        ]):
+            continue
+
         # Handle classical formats (e.g. DOMAIN-SUFFIX,example.com or DOMAIN,example.com)
         if line.startswith("DOMAIN-SUFFIX,"):
             parts = line.split(",")
             if len(parts) >= 2:
                 domain = parts[1].strip().lower().lstrip("+.")
-                if domain:
+                if is_valid_domain(domain):
                     suffix_domains.add(domain)
             continue
         elif line.startswith("DOMAIN,"):
             parts = line.split(",")
             if len(parts) >= 2:
                 domain = parts[1].strip().lower().lstrip("+.")
-                if domain:
+                if is_valid_domain(domain):
                     exact_domains.add(domain)
-            continue
-        elif line.startswith("DOMAIN-KEYWORD,") or line.startswith("DOMAIN-REGEX,") or line.startswith("IP-CIDR"):
-            # Domain-specific strategy doesn't handle IP or regex
             continue
 
         # Handle +., ., or plain domain
         if line.startswith("+."):
             clean = line[2:].strip().lower()
-            if clean:
+            if is_valid_domain(clean):
                 suffix_domains.add(clean)
         elif line.startswith("."):
             clean = line[1:].strip().lower()
-            if clean:
+            if is_valid_domain(clean):
                 suffix_domains.add(clean)
         else:
             clean = line.strip().lower()
-            if clean:
+            if is_valid_domain(clean):
                 exact_domains.add(clean)
 
     return suffix_domains, exact_domains
@@ -319,21 +347,44 @@ def build_profile(sources, profile_name, output_dir, local_cache_dir=None):
         with open(f"{p}.sha256sum", "w", encoding="utf-8") as f:
             f.write(f"{digest}  {os.path.basename(p)}\n")
 
-    # 4. Optional: compile to .mrs binary format if Go converter is available
-    converter_dir = os.path.join(os.path.dirname(__file__), "mrs_converter")
-    mrs_path = os.path.join(output_dir, f"{profile_name}.mrs")
-    if os.path.exists(os.path.join(converter_dir, "main.go")):
-        cmd = ["go", "run", ".", "-in", yaml_path, "-out", mrs_path]
-        try:
-            res = subprocess.run(cmd, cwd=converter_dir, capture_output=True, text=True, check=True)
-            if os.path.exists(mrs_path):
-                with open(mrs_path, "rb") as f:
-                    digest = hashlib.sha256(f.read()).hexdigest()
-                with open(f"{mrs_path}.sha256sum", "w", encoding="utf-8") as f:
-                    f.write(f"{digest}  {os.path.basename(mrs_path)}\n")
-                print(f"  - {mrs_path} ({os.path.getsize(mrs_path):,} bytes)")
-        except Exception as e:
-            print(f"  [Notice] Could not auto-compile mrs: {e}")
+    # 4. Compile to .mrs binary format
+    abs_yaml_path = os.path.abspath(yaml_path)
+    abs_mrs_path = os.path.abspath(os.path.join(output_dir, f"{profile_name}.mrs"))
+    converter_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "mrs_converter"))
+
+    # Check if a precompiled binary exists (in repo root or converter_dir)
+    bin_name = "mrs_converter.exe" if sys.platform == "win32" else "mrs_converter"
+    precompiled_bin = None
+    for candidate in [
+        os.path.join(os.path.dirname(__file__), "..", bin_name),
+        os.path.join(converter_dir, bin_name)
+    ]:
+        cand_abs = os.path.abspath(candidate)
+        if os.path.exists(cand_abs):
+            precompiled_bin = cand_abs
+            break
+
+    if precompiled_bin:
+        cmd = [precompiled_bin, "-in", abs_yaml_path, "-out", abs_mrs_path]
+        res = subprocess.run(cmd, capture_output=True, text=True)
+    elif os.path.exists(os.path.join(converter_dir, "main.go")):
+        cmd = ["go", "run", ".", "-in", abs_yaml_path, "-out", abs_mrs_path]
+        res = subprocess.run(cmd, cwd=converter_dir, capture_output=True, text=True)
+    else:
+        res = None
+
+    if res is not None:
+        if res.returncode != 0:
+            print(f"  [ERROR] Failed to compile mrs for {profile_name}: returncode {res.returncode}")
+            print(f"  Stdout: {res.stdout}")
+            print(f"  Stderr: {res.stderr}")
+            sys.exit(1)
+        if os.path.exists(abs_mrs_path):
+            with open(abs_mrs_path, "rb") as f:
+                digest = hashlib.sha256(f.read()).hexdigest()
+            with open(f"{abs_mrs_path}.sha256sum", "w", encoding="utf-8") as f:
+                f.write(f"{digest}  {os.path.basename(abs_mrs_path)}\n")
+            print(f"  - {abs_mrs_path} ({os.path.getsize(abs_mrs_path):,} bytes)")
 
     print(f"Generated artifacts for {profile_name}:")
     print(f"  - {list_path} ({os.path.getsize(list_path):,} bytes)")

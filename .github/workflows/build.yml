@@ -5,13 +5,6 @@ on:
     # Runs at 20:30 UTC daily (04:30 AM Beijing Time)
     - cron: "30 20 * * *"
   workflow_dispatch:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - "README.md"
-      - "LICENSE"
-      - ".gitignore"
 
 jobs:
   build:
@@ -40,9 +33,22 @@ jobs:
           go-version: "1.22"
           cache-dependency-path: ./scripts/mrs_converter/go.sum
 
+      - name: Compile MRS Converter
+        run: |
+          cd scripts/mrs_converter
+          go build -trimpath -ldflags="-s -w" -o ../../mrs_converter .
+          cd ../..
+          chmod +x ./mrs_converter
+
       - name: Build Rules
         run: |
           python scripts/build.py --profile all --output publish
+
+      - name: Verify Artifacts
+        run: |
+          ls -lh ./publish
+          test -f ./publish/reject-server.mrs || { echo "reject-server.mrs is missing!"; exit 1; }
+          test -f ./publish/reject-client.mrs || { echo "reject-client.mrs is missing!"; exit 1; }
 
       - name: Prepare Release Directory
         run: |
