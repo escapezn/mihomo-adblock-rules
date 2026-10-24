@@ -289,7 +289,7 @@ def build_profile(sources, profile_name, output_dir, local_cache_dir=None):
         f"# Title: Mihomo AdBlock Rules - {profile_name.capitalize()}\n"
         f"# Total Rules: {pruned_count}\n"
         f"# Updated: {now_utc}\n"
-        f"# Homepage: https://github.com/metacubex/mihomo\n"
+        f"# Homepage: https://github.com/escapezn/mihomo-adblock-rules\n"
         f"# License: AGPL-3.0 / MIT\n"
         f"#\n"
     )

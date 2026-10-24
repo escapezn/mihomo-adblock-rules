@@ -1,7 +1,7 @@
 # Mihomo AdBlock Rules (每日自动合并与优化)
 
-[![Build and Release AdBlock Rules](https://github.com/USERNAME/REPO/actions/workflows/build.yml/badge.svg)](https://github.com/USERNAME/REPO/actions/workflows/build.yml)
-[![Release](https://img.shields.io/github/v/release/USERNAME/REPO?color=blue&label=Release)](https://github.com/USERNAME/REPO/releases/latest)
+[![Build and Release AdBlock Rules](https://github.com/escapezn/mihomo-adblock-rules/actions/workflows/build.yml/badge.svg)](https://github.com/escapezn/mihomo-adblock-rules/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/escapezn/mihomo-adblock-rules?color=blue&label=Release)](https://github.com/escapezn/mihomo-adblock-rules/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 专为 **Mihomo (Clash.Meta)** 打造的高性能广告拦截与追踪防御规则集。本项目参照 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 自动化工程架构，利用 GitHub Actions **每日定时拉取上游权威规则库，经倒序字典树（Trie）智能剪除冗余子域后编译输出**。
@@ -29,27 +29,27 @@
 ## 订阅链接速查
 
 > [!TIP]
-> 请将链接中的 `USERNAME/REPO` 替换为你自己的 GitHub 用户名及仓库名。推荐优先使用 jsDelivr CDN 加速。
+> 推荐优先使用 jsDelivr CDN 加速链接，享受全球 CDN 分发加速。
 
 ### 1. 服务器版 (`reject-server`)
 * **MRS 二进制 (强烈推荐，速度与内存最优)**:
-  * jsDelivr: `https://cdn.jsdelivr.net/gh/USERNAME/REPO@release/reject-server.mrs`
-  * GitHub: `https://raw.githubusercontent.com/USERNAME/REPO/release/reject-server.mrs`
+  * jsDelivr: `https://cdn.jsdelivr.net/gh/escapezn/mihomo-adblock-rules@release/reject-server.mrs`
+  * GitHub: `https://raw.githubusercontent.com/escapezn/mihomo-adblock-rules/release/reject-server.mrs`
 * **YAML 格式 (`behavior: domain`)**:
-  * jsDelivr: `https://cdn.jsdelivr.net/gh/USERNAME/REPO@release/reject-server.yaml`
-  * GitHub: `https://raw.githubusercontent.com/USERNAME/REPO/release/reject-server.yaml`
+  * jsDelivr: `https://cdn.jsdelivr.net/gh/escapezn/mihomo-adblock-rules@release/reject-server.yaml`
+  * GitHub: `https://raw.githubusercontent.com/escapezn/mihomo-adblock-rules/release/reject-server.yaml`
 * **纯文本格式 (`.list` / `.txt`)**:
-  * jsDelivr: `https://cdn.jsdelivr.net/gh/USERNAME/REPO@release/reject-server.list`
+  * jsDelivr: `https://cdn.jsdelivr.net/gh/escapezn/mihomo-adblock-rules@release/reject-server.list`
 
 ### 2. 客户端版 (`reject-client`)
 * **MRS 二进制 (强烈推荐)**:
-  * jsDelivr: `https://cdn.jsdelivr.net/gh/USERNAME/REPO@release/reject-client.mrs`
-  * GitHub: `https://raw.githubusercontent.com/USERNAME/REPO/release/reject-client.mrs`
+  * jsDelivr: `https://cdn.jsdelivr.net/gh/escapezn/mihomo-adblock-rules@release/reject-client.mrs`
+  * GitHub: `https://raw.githubusercontent.com/escapezn/mihomo-adblock-rules/release/reject-client.mrs`
 * **YAML 格式 (`behavior: domain`)**:
-  * jsDelivr: `https://cdn.jsdelivr.net/gh/USERNAME/REPO@release/reject-client.yaml`
-  * GitHub: `https://raw.githubusercontent.com/USERNAME/REPO/release/reject-client.yaml`
+  * jsDelivr: `https://cdn.jsdelivr.net/gh/escapezn/mihomo-adblock-rules@release/reject-client.yaml`
+  * GitHub: `https://raw.githubusercontent.com/escapezn/mihomo-adblock-rules/release/reject-client.yaml`
 * **纯文本格式 (`.list` / `.txt`)**:
-  * jsDelivr: `https://cdn.jsdelivr.net/gh/USERNAME/REPO@release/reject-client.list`
+  * jsDelivr: `https://cdn.jsdelivr.net/gh/escapezn/mihomo-adblock-rules@release/reject-client.list`
 
 ---
 
@@ -65,7 +65,7 @@ rule-providers:
     behavior: domain
     format: mrs
     path: ./ruleset/reject-client.mrs
-    url: "https://cdn.jsdelivr.net/gh/USERNAME/REPO@release/reject-client.mrs"
+    url: "https://cdn.jsdelivr.net/gh/escapezn/mihomo-adblock-rules@release/reject-client.mrs"
     interval: 86400
 
   # 服务器 / 软路由使用：
@@ -74,7 +74,7 @@ rule-providers:
     behavior: domain
     format: mrs
     path: ./ruleset/reject-server.mrs
-    url: "https://cdn.jsdelivr.net/gh/USERNAME/REPO@release/reject-server.mrs"
+    url: "https://cdn.jsdelivr.net/gh/escapezn/mihomo-adblock-rules@release/reject-server.mrs"
     interval: 86400
 
 rules:
@@ -93,7 +93,7 @@ rule-providers:
     behavior: domain
     format: yaml
     path: ./ruleset/reject-client.yaml
-    url: "https://cdn.jsdelivr.net/gh/USERNAME/REPO@release/reject-client.yaml"
+    url: "https://cdn.jsdelivr.net/gh/escapezn/mihomo-adblock-rules@release/reject-client.yaml"
     interval: 86400
 
 rules:
