@@ -62,12 +62,12 @@ CLIENT_SOURCES = [
     },
     {
         "name": "217heidai AdBlock Lite",
-        "url": "https://cdn.jsdelivr.net/gh/217heidai/adblockfilters/rules/adblockmihomolite.yaml",
+        "url": "https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockmihomolite.yaml",
         "format": "yaml_list"
     },
     {
         "name": "AWAvenue Ads Classical",
-        "url": "https://cdn.jsdelivr.net/gh/TG-Twilight/AWAvenue-Ads-Rule@main/Filters/AWAvenue-Ads-Rule-Clash-Classical.yaml",
+        "url": "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Clash-Classical.yaml",
         "format": "yaml_list"
     }
 ]
